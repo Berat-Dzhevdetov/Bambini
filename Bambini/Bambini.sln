@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.31903.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bambini", "Bambini\Bambini.csproj", "{DD690BF6-2B1A-4E38-8549-FE932500B566}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DD690BF6-2B1A-4E38-8549-FE932500B566}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD690BF6-2B1A-4E38-8549-FE932500B566}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD690BF6-2B1A-4E38-8549-FE932500B566}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD690BF6-2B1A-4E38-8549-FE932500B566}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DFAFFD6C-F663-449D-80B7-B48119D563E6}
+	EndGlobalSection
+EndGlobal
