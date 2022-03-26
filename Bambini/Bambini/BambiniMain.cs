@@ -3,32 +3,33 @@
     using System;
     using System.Speech.Recognition;
     using System.Globalization;
-    using System.Diagnostics;
+    using System.Reflection;
+    using Bambini.Interfaces;
 
     public class BambiniMain
     {
         private const string CALL_WORD = "Hey";
         private const string APP_NAME = "Bambini";
         private string FULL_PHRASE;
-        private readonly WindowsHelper windowsHelper;
+        private List<ICommand> commands;
 
         public BambiniMain()
         {
-            windowsHelper = new WindowsHelper();
             FULL_PHRASE = $"{CALL_WORD.ToLower()} {APP_NAME.ToLower()}";
+            commands = new List<ICommand>();
         }
 
         private SpeechRecognitionEngine recognizer;
 
         public void Run()
         {
+            LoadCommands();
             LoadSpeechRecognition();
 
             // Keep the console window open.
             while (true)
             {
                 Console.ReadLine();
-
             }
         }
 
@@ -49,34 +50,49 @@
 
             // Start asynchronous, continuous speech recognition.
             recognizer.RecognizeAsync(RecognizeMode.Multiple);
+
+            Console.WriteLine("Listening!");
+            Console.WriteLine("Type \"help\" for see options");
+        }
+
+        private void LoadCommands()
+        {
+            var commandTypes = Assembly
+                    .GetExecutingAssembly()
+                    .GetTypes()
+                    .Where(t => typeof(ICommand).IsAssignableFrom(t) && t.IsClass)
+                    .ToArray();
+
+            foreach (var command in commandTypes)
+            {
+                ICommand commandToAdd = (ICommand)Activator.CreateInstance(command);
+                commands.Add(commandToAdd);
+            }
         }
 
         private Choices GetChoices()
         {
             Choices myChoices = new();
 
-            //load from Json
-            myChoices.Add($"{FULL_PHRASE} open youtube");
-            myChoices.Add($"{FULL_PHRASE} close browser");
-           
+            foreach (var command in commands)
+            {
+                myChoices.Add($"{FULL_PHRASE} {command.Phrase}");
+            }
+
             return myChoices;
         }
 
         private void recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-            switch (e.Result.Text)
-            {
-                case $"hey bambini open youtube":
-                    Process.Start(windowsHelper.DefaultBrowser, "https://www.youtube.com/");
-                    break;
-                //case $"{FULL_PHRASE} close browser":
-
-                //    break;
-                default:
-                    break;
-            }
-
             Console.WriteLine($"Recognized: {e.Result.Text}");
+            if (e.Result.Text.StartsWith(FULL_PHRASE))
+            {
+                var token = e.Result.Text.Substring(FULL_PHRASE.Length + 1);
+
+                var command = commands.FirstOrDefault(x => x.Phrase == token);
+
+                command.Execute();
+            }
         }
     }
 }
