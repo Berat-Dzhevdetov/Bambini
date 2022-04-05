@@ -1,11 +1,20 @@
 ﻿namespace Bambini
 {
+    using System;
+
     public class CommandMain
     {
-        public CommandMain()
+        protected readonly WindowsHelper windowsHelper;
+        public virtual string Phrase => throw new NotImplementedException();
+
+        public CommandMain(WindowsHelper windowsHelper)
         {
-            windowsHelper = new WindowsHelper();
+            this.windowsHelper = windowsHelper;
         }
-        protected WindowsHelper windowsHelper { get; set; }
+
+        public virtual void Execute()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

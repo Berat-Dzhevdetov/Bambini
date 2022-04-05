@@ -3,14 +3,15 @@
     using System.Diagnostics;
     using Bambini.Interfaces;
 
-    public class CloseBrowsersCommand : CommandMain, ICommand
+    public class CloseBrowsersCommand : ICommand
     {
-        public CloseBrowsersCommand()
-        {
-
-        }
-
         public string Phrase => "close browsers";
+        private readonly WindowsHelper windowsHelper;
+
+        public CloseBrowsersCommand(WindowsHelper windowsHelper)
+        {
+            this.windowsHelper = windowsHelper;
+        }
 
         public void Execute()
         {

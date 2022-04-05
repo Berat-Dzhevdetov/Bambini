@@ -1,11 +1,17 @@
 ﻿namespace Bambini.Commands
 {
-    using System.Diagnostics;
     using Bambini.Interfaces;
+    using System.Diagnostics;
 
-    public class OpenYoutubeCommand : CommandMain, ICommand
+    public class OpenYoutubeCommand : ICommand
     {
         public string Phrase => "open youtube";
+        private readonly WindowsHelper windowsHelper;
+
+        public OpenYoutubeCommand(WindowsHelper windowsHelper)
+        {
+            this.windowsHelper = windowsHelper;
+        }
 
         public void Execute()
         {

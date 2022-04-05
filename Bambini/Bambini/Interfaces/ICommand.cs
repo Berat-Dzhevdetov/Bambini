@@ -2,7 +2,7 @@
 {
     public interface ICommand
     {
-        public string Phrase { get; }
+        string Phrase { get; }
         void Execute();
     }
 }

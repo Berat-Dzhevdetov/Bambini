@@ -11,20 +11,23 @@
         private const string CALL_WORD = "Hey";
         private const string APP_NAME = "Bambini";
         private string FULL_PHRASE;
+        private SpeechRecognitionEngine recognizer;
         private List<ICommand> commands;
+        private readonly WindowsHelper windowsHelper;
 
         public BambiniMain()
         {
             FULL_PHRASE = $"{CALL_WORD.ToLower()} {APP_NAME.ToLower()}";
             commands = new List<ICommand>();
+            windowsHelper = new WindowsHelper();
         }
-
-        private SpeechRecognitionEngine recognizer;
 
         public void Run()
         {
             LoadCommands();
             LoadSpeechRecognition();
+
+            Console.WriteLine("Listening!");
 
             // Keep the console window open.
             while (true)
@@ -50,9 +53,6 @@
 
             // Start asynchronous, continuous speech recognition.
             recognizer.RecognizeAsync(RecognizeMode.Multiple);
-
-            Console.WriteLine("Listening!");
-            Console.WriteLine("Type \"help\" for see options");
         }
 
         private void LoadCommands()
@@ -62,10 +62,11 @@
                     .GetTypes()
                     .Where(t => typeof(ICommand).IsAssignableFrom(t) && t.IsClass)
                     .ToArray();
-
+            ;
             foreach (var command in commandTypes)
             {
-                ICommand commandToAdd = (ICommand)Activator.CreateInstance(command);
+                ICommand commandToAdd;
+                commandToAdd = (ICommand)Activator.CreateInstance(command, windowsHelper);
                 commands.Add(commandToAdd);
             }
         }
@@ -87,7 +88,7 @@
             Console.WriteLine($"Recognized: {e.Result.Text}");
             if (e.Result.Text.StartsWith(FULL_PHRASE))
             {
-                var token = e.Result.Text.Substring(FULL_PHRASE.Length + 1);
+                var token = e.Result.Text[(FULL_PHRASE.Length + 1)..];
 
                 var command = commands.FirstOrDefault(x => x.Phrase == token);
 
