@@ -1,7 +1,6 @@
 ﻿namespace Bambini.Commands
 {
     using Bambini.Services.Interfaces;
-    using Bambini.Services.WindowsHelper;
     using System.Diagnostics;
 
     public class OpenLeagueOfLegends : ICommand

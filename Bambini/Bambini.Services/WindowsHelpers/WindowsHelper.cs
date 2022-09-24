@@ -1,13 +1,16 @@
-﻿namespace Bambini.Services.WindowsHelper
+﻿namespace Bambini.Services.WindowsHelpers
 {
     using System;
     using Microsoft.Win32;
 
-    public class WindowsHelper : IWindowsHelper
+    internal class WindowsHelper : IWindowsHelper
     {
+        private readonly ITest test;
+
         #region Constructors
-        public WindowsHelper(string asd)
+        public WindowsHelper(ITest test)
         {
+            this.test = test;
             DefaultBrowser = GetSystemDefaultBrowser();
         }
         #endregion
@@ -28,13 +31,13 @@
                 regKey = Registry.ClassesRoot.OpenSubKey("HTTP\\shell\\open\\command", false);
 
                 //get rid of the enclosing quotes
-                name = regKey.GetValue(null).ToString().ToLower().Replace("" + (char)34, "");
+                name = regKey?.GetValue(null)?.ToString()?.ToLower()?.Replace("" + (char)34, "");
 
                 //check to see if the value ends with .exe (this way we can remove any command line arguments)
                 if (!name.EndsWith("exe"))
                 {
                     //get rid of all command line arguments (anything after the .exe must go)
-                    name = name.Substring(0, name.LastIndexOf(".exe") + 4);
+                    name = name[..(name.LastIndexOf(".exe") + 4)];
 
                     if (name.Contains("internet explorer\\iexplore.exe"))
                     {

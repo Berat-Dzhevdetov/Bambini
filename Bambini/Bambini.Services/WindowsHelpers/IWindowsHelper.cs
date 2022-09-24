@@ -1,4 +1,4 @@
-﻿namespace Bambini.Services.WindowsHelper
+﻿namespace Bambini.Services.WindowsHelpers
 {
     public interface IWindowsHelper
     {

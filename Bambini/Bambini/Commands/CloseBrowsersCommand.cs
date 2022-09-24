@@ -1,24 +1,25 @@
 ﻿namespace Bambini.Commands
 {
     using System.Diagnostics;
-    using Bambini.Interfaces;
+    using Bambini.Services.Interfaces;
+    using Bambini.Services.WindowsHelpers;
 
     public class CloseBrowsersCommand : ICommand
     {
         public string Phrase => "close browsers";
-        private readonly WindowsHelper windowsHelper;
+        private readonly IWindowsHelper windowsHelper;
 
-        public CloseBrowsersCommand(WindowsHelper windowsHelper)
+        public CloseBrowsersCommand(IWindowsHelper windowsHelper)
         {
             this.windowsHelper = windowsHelper;
         }
 
         public void Execute()
         {
-            var result = windowsHelper.DefaultBrowser.Substring(windowsHelper.DefaultBrowser.LastIndexOf('\\') + 1);
+            var result = windowsHelper.DefaultBrowser[(windowsHelper.DefaultBrowser.LastIndexOf('\\') + 1)..];
             if (result.EndsWith(".exe"))
             {
-                result = result.Substring(0, result.IndexOf('.'));
+                result = result[..result.IndexOf('.')];
             }
             Process[] workers = Process.GetProcessesByName(result);
             foreach (Process worker in workers)

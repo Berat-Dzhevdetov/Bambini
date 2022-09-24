@@ -1,19 +1,21 @@
 ﻿namespace Bambini.Services
 {
+    using Bambini.Services.DependencyResolvers;
+    using Bambini.Services.Interfaces;
+    using Bambini.Services.WindowsHelpers;
     using System;
-    using System.Speech.Recognition;
     using System.Globalization;
     using System.Reflection;
-    using Bambini.Services.Interfaces;
+    using System.Speech.Recognition;
 
     public class BambiniMain
     {
         #region Fields
         private const string CALL_WORD = "Hey";
         private const string APP_NAME = "Bambini";
-        private string FULL_PHRASE;
+        private readonly string FULL_PHRASE;
         private SpeechRecognitionEngine recognizer;
-        private List<ICommand> commands;
+        private readonly List<ICommand> commands;
         private readonly DependencyResolver dependencyResolver;
         #endregion
 
@@ -30,11 +32,9 @@
         #region Public methods
         public void Run()
         {
+            LoadDependencies();
             LoadCommands();
             LoadSpeechRecognition();
-            LoadDependencies();
-
-            var a = dependencyResolver.Get<WindowsHelper>();
 
             Console.WriteLine("Listening!");
 
@@ -69,10 +69,12 @@
         private void LoadCommands()
         {
             var commandTypes = Assembly
-                    .GetExecutingAssembly()
-                    .GetTypes()
+                    .GetEntryAssembly()
+                    ?.GetTypes()
                     .Where(t => typeof(ICommand).IsAssignableFrom(t) && t.IsClass)
                     .ToArray();
+
+            if (commandTypes == null) return;
 
             foreach (var command in commandTypes)
             {
@@ -80,7 +82,35 @@
 
                 if (command == null) continue;
 
-                //commandToAdd = Activator.CreateInstance(command, new WindowsHelper("asd")) as ICommand;
+                var constructors = command.GetConstructors();
+
+                if (constructors.Length != 1) throw new InvalidDataException($"Found more or less constructors in '{command.FullName}' command");
+
+                var constructor = constructors.FirstOrDefault();
+
+                var parameters = constructor.GetParameters();
+
+                if (parameters.Length >= 1)
+                {
+                    var resolvedParameters = new List<object>();
+
+                    foreach (var parameter in parameters)
+                    {
+                        var parameterType = parameter.ParameterType;
+
+                        MethodInfo method = dependencyResolver.GetType().GetMethod(nameof(dependencyResolver.Get))
+                                     .MakeGenericMethod(new Type[] { parameterType });
+
+                        var resolvedParameter = method.Invoke(dependencyResolver, Array.Empty<object>());
+                        resolvedParameters.Add(resolvedParameter);
+                    }
+
+                    commandToAdd = (ICommand)constructor.Invoke(resolvedParameters.ToArray());
+                }
+                else
+                {
+                    commandToAdd = (ICommand)Activator.CreateInstance(command);
+                }
 
                 if (commandToAdd == null) continue;
 
@@ -115,7 +145,7 @@
 
         private void LoadDependencies()
         {
-            dependencyResolver.Add<WindowsHelper>();
+            dependencyResolver.Add<IWindowsHelper, WindowsHelper>();
         }
         #endregion
     }

@@ -1,14 +1,15 @@
 ﻿namespace Bambini.Commands
 {
     using System.Diagnostics;
-    using Bambini.Interfaces;
+    using Bambini.Services.Interfaces;
+    using Bambini.Services.WindowsHelpers;
 
     public class OpenGitHubCommand : ICommand
     {
         public string Phrase => "open github";
-        private readonly WindowsHelper windowsHelper;
+        private readonly IWindowsHelper windowsHelper;
 
-        public OpenGitHubCommand(WindowsHelper windowsHelper)
+        public OpenGitHubCommand(IWindowsHelper windowsHelper)
         {
             this.windowsHelper = windowsHelper;
         }
