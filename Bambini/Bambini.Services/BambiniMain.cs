@@ -19,17 +19,34 @@
         private readonly DependencyResolver dependencyResolver;
         #endregion
 
+        #region Properties
+        public DependencyResolver DependencyResolver
+        {
+            get
+            {
+                return dependencyResolver;
+            }
+            init
+            {
+                dependencyResolver = value;
+            }
+        }
+        #endregion
+
         #region Constructors
         public BambiniMain()
         {
             FULL_PHRASE = $"{CALL_WORD.ToLower()} {APP_NAME.ToLower()}";
             commands = new List<ICommand>();
             //windowsHelper = new WindowsHelper();
-            dependencyResolver = new DependencyResolver();
+            DependencyResolver = new DependencyResolver();
         }
         #endregion
 
         #region Public methods
+        /// <summary>
+        /// Runs the program and start listening
+        /// </summary>
         public void Run()
         {
             LoadDependencies();
@@ -98,10 +115,10 @@
                     {
                         var parameterType = parameter.ParameterType;
 
-                        MethodInfo method = dependencyResolver.GetType().GetMethod(nameof(dependencyResolver.Get))
+                        MethodInfo method = DependencyResolver.GetType().GetMethod(nameof(DependencyResolver.Get), BindingFlags.NonPublic | BindingFlags.Instance)
                                      .MakeGenericMethod(new Type[] { parameterType });
 
-                        var resolvedParameter = method.Invoke(dependencyResolver, Array.Empty<object>());
+                        var resolvedParameter = method.Invoke(DependencyResolver, Array.Empty<object>());
                         resolvedParameters.Add(resolvedParameter);
                     }
 
@@ -145,7 +162,7 @@
 
         private void LoadDependencies()
         {
-            dependencyResolver.Add<IWindowsHelper, WindowsHelper>();
+            DependencyResolver.Add<IWindowsHelper, WindowsHelper>();
         }
         #endregion
     }

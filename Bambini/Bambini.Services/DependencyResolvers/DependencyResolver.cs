@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Reflection;
 
-    internal class DependencyResolver
+    public class DependencyResolver
     {
         private readonly Dictionary<Type, Type> regs = new();
         private readonly Dictionary<Type, object> resolved = new();
@@ -22,7 +22,7 @@
             regs.Add(typeof(TInterface), typeof(TClass));
         }
 
-        public T Get<T>()
+        internal T Get<T>()
         {
             if (resolved.ContainsKey(typeof(T)))
             {

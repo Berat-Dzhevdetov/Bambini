@@ -5,12 +5,9 @@
 
     internal class WindowsHelper : IWindowsHelper
     {
-        private readonly ITest test;
-
         #region Constructors
-        public WindowsHelper(ITest test)
+        public WindowsHelper()
         {
-            this.test = test;
             DefaultBrowser = GetSystemDefaultBrowser();
         }
         #endregion

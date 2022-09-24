@@ -11,7 +11,7 @@
         {
             var workers = Process.GetProcessesByName("LeagueClient");
 
-            if(workers.Length >= 0)
+            if(workers.Length > 0)
             {
                 // tell the user that league is already open
                 return;
