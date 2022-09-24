@@ -1,18 +1,22 @@
-﻿namespace Bambini
+﻿namespace Bambini.Services.WindowsHelper
 {
     using System;
     using Microsoft.Win32;
 
-    public class WindowsHelper
+    public class WindowsHelper : IWindowsHelper
     {
-         
-        public WindowsHelper()
+        #region Constructors
+        public WindowsHelper(string asd)
         {
             DefaultBrowser = GetSystemDefaultBrowser();
         }
+        #endregion
 
-        public string DefaultBrowser { get; private set; }
+        #region Properties
+        public string DefaultBrowser { get; init; }
+        #endregion
 
+        #region Private Methods
         private string GetSystemDefaultBrowser()
         {
             string name = string.Empty;
@@ -50,9 +54,10 @@
                 if (regKey != null)
                     regKey.Close();
             }
+
             //return the value
             return name;
-
         }
+        #endregion
     }
 }

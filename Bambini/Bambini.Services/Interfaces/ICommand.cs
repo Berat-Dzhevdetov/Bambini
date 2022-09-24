@@ -1,4 +1,4 @@
-﻿namespace Bambini.Interfaces
+﻿namespace Bambini.Services.Interfaces
 {
     public interface ICommand
     {

@@ -27,4 +27,8 @@
     <PackageReference Include="System.Speech" Version="6.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Bambini.Services\Bambini.Services.csproj" />
+  </ItemGroup>
+
 </Project>

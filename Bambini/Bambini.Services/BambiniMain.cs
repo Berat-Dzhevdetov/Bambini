@@ -1,31 +1,40 @@
-﻿namespace Bambini
+﻿namespace Bambini.Services
 {
     using System;
     using System.Speech.Recognition;
     using System.Globalization;
     using System.Reflection;
-    using Bambini.Interfaces;
+    using Bambini.Services.Interfaces;
 
     public class BambiniMain
     {
+        #region Fields
         private const string CALL_WORD = "Hey";
         private const string APP_NAME = "Bambini";
         private string FULL_PHRASE;
         private SpeechRecognitionEngine recognizer;
         private List<ICommand> commands;
-        private readonly WindowsHelper windowsHelper;
+        private readonly DependencyResolver dependencyResolver;
+        #endregion
 
+        #region Constructors
         public BambiniMain()
         {
             FULL_PHRASE = $"{CALL_WORD.ToLower()} {APP_NAME.ToLower()}";
             commands = new List<ICommand>();
-            windowsHelper = new WindowsHelper();
+            //windowsHelper = new WindowsHelper();
+            dependencyResolver = new DependencyResolver();
         }
+        #endregion
 
+        #region Public methods
         public void Run()
         {
             LoadCommands();
             LoadSpeechRecognition();
+            LoadDependencies();
+
+            var a = dependencyResolver.Get<WindowsHelper>();
 
             Console.WriteLine("Listening!");
 
@@ -35,7 +44,9 @@
                 Console.ReadLine();
             }
         }
+        #endregion
 
+        #region Private methods
         private void LoadSpeechRecognition()
         {
             // Create a SpeechRecognitionEngine object for the default recognizer in the en-US locale.
@@ -62,11 +73,17 @@
                     .GetTypes()
                     .Where(t => typeof(ICommand).IsAssignableFrom(t) && t.IsClass)
                     .ToArray();
-            ;
+
             foreach (var command in commandTypes)
             {
-                ICommand commandToAdd;
-                commandToAdd = (ICommand)Activator.CreateInstance(command, windowsHelper);
+                ICommand? commandToAdd;
+
+                if (command == null) continue;
+
+                //commandToAdd = Activator.CreateInstance(command, new WindowsHelper("asd")) as ICommand;
+
+                if (commandToAdd == null) continue;
+
                 commands.Add(commandToAdd);
             }
         }
@@ -95,5 +112,11 @@
                 command.Execute();
             }
         }
+
+        private void LoadDependencies()
+        {
+            dependencyResolver.Add<WindowsHelper>();
+        }
+        #endregion
     }
 }

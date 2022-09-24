@@ -1,17 +1,12 @@
 ﻿namespace Bambini.Commands
 {
-    using Bambini.Interfaces;
+    using Bambini.Services.Interfaces;
+    using Bambini.Services.WindowsHelper;
     using System.Diagnostics;
 
     public class OpenLeagueOfLegends : ICommand
     {
         public string Phrase => "open league of legends";
-        private readonly WindowsHelper windowsHelper;
-
-        public OpenLeagueOfLegends(WindowsHelper windowsHelper)
-        {
-            this.windowsHelper = windowsHelper;
-        }
 
         public void Execute()
         {
