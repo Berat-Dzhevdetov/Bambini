@@ -1,7 +1,8 @@
 ﻿namespace Bambini.Services.WindowsHelpers
 {
-    using System;
     using Microsoft.Win32;
+    using System;
+    using System.Diagnostics;
 
     internal class WindowsHelper : IWindowsHelper
     {
@@ -13,7 +14,60 @@
         #endregion
 
         #region Properties
+        /// <summary>
+        /// Returns the default browser exe file.
+        /// </summary>
         public string DefaultBrowser { get; init; }
+        #endregion
+
+        #region Public methods
+        /// <summary>
+        /// Executes a command on the machine
+        /// </summary>
+        /// <param name="filename">Filename (should the be exe)</param>
+        /// <param name="arguments">Arguments that are needed to execute the file</param>
+        /// <returns>Status of what happened during the procces</returns>
+        /// <exception cref="ArgumentNullException">Could be thrown if the filename is null</exception>
+        public bool ExecuteCommand(string filename, string arguments)
+        {
+            var process = new Process();
+
+            var startInfo = new ProcessStartInfo
+            {
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+
+            if (string.IsNullOrEmpty(filename))
+            {
+                throw new ArgumentNullException("Excepted parameter filename to have a value");
+            }
+
+            startInfo.FileName = filename;
+
+            if (!string.IsNullOrEmpty(arguments))
+            {
+                startInfo.Arguments = arguments;
+            }
+
+            process.StartInfo = startInfo;
+
+            try
+            {
+                process.Start();
+                process.BeginOutputReadLine();
+                process.WaitForExit();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("OS error while executing: " + e.Message, e);
+            }
+
+            return process.ExitCode == 0;
+        }
         #endregion
 
         #region Private Methods

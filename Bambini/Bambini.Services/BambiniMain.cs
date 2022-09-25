@@ -2,6 +2,7 @@
 {
     using Bambini.Services.DependencyResolvers;
     using Bambini.Services.Interfaces;
+    using Bambini.Services.SpeechServices;
     using Bambini.Services.WindowsHelpers;
     using System;
     using System.Globalization;
@@ -163,6 +164,7 @@
         private void LoadDependencies()
         {
             DependencyResolver.Add<IWindowsHelper, WindowsHelper>();
+            DependencyResolver.Add<ISpeech, Speech>();
         }
         #endregion
     }

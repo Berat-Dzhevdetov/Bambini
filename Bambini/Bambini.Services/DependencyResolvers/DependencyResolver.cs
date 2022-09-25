@@ -10,12 +10,25 @@
         private readonly Dictionary<Type, Type> regs = new();
         private readonly Dictionary<Type, object> resolved = new();
 
+        /// <summary>
+        /// Adds the given class to a dictionary and when a command needs it
+        /// it will automatically pass it if needed. You should call this method before running the
+        /// application
+        /// </summary>
+        /// <typeparam name="TClass">A class to add</typeparam>
         public void Add<TClass>()
             where TClass : class
         {
             regs.Add(typeof(TClass), typeof(TClass));
         }
 
+        /// <summary>
+        /// Takes an interface and class (what implementation should add to the given interface).
+        /// When the interface is met it will pass the class. You should call this method before running the
+        /// application
+        /// </summary>
+        /// <typeparam name="TInterface">Interface</typeparam>
+        /// <typeparam name="TClass">The class</typeparam>
         public void Add<TInterface, TClass>()
             where TClass : TInterface
         {
@@ -58,7 +71,7 @@
 
             if (constuctor == null)
             {
-                throw new ArgumentNullException($"Excepted at least one constuctor for '{classTypeName}' type");
+                throw new ArgumentNullException($"excepted at least one constuctor for '{classTypeName}' type");
             }
 
             var parameters = constuctor.GetParameters();
