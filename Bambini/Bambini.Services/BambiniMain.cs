@@ -1,7 +1,9 @@
 ﻿namespace Bambini.Services
 {
     using Bambini.Services.DependencyResolvers;
+    using Bambini.Services.Extension;
     using Bambini.Services.Interfaces;
+    using Bambini.Services.LoggerService;
     using Bambini.Services.SpeechServices;
     using Bambini.Services.WindowsHelpers;
     using System;
@@ -17,7 +19,7 @@
         private readonly string FULL_PHRASE;
         private SpeechRecognitionEngine recognizer;
         private readonly List<ICommand> commands;
-        private readonly DependencyResolver dependencyResolver;
+        private readonly ILog log;
         #endregion
 
         #region Properties
@@ -29,8 +31,9 @@
         {
             FULL_PHRASE = $"{CALL_WORD.ToLower()} {APP_NAME.ToLower()}";
             commands = new List<ICommand>();
-            //windowsHelper = new WindowsHelper();
             DependencyResolver = new DependencyResolver();
+            LoadDependencies();
+            log = DependencyResolver.Get<ILog>();
         }
         #endregion
 
@@ -40,7 +43,6 @@
         /// </summary>
         public void Run()
         {
-            LoadDependencies();
             LoadCommands();
             LoadSpeechRecognition();
 
@@ -177,6 +179,9 @@
                 catch (Exception ex)
                 {
                     Console.WriteLine($"{command} failed to run: {ex.Message}");
+                    Console.WriteLine("Check the logs for more information");
+                    ex.SetCommand(command);
+                    log.Write(ex);
                 }
             }
         }
@@ -185,6 +190,7 @@
         {
             DependencyResolver.Add<IWindowsHelper, WindowsHelper>();
             DependencyResolver.Add<ISpeech, Speech>();
+            DependencyResolver.Add<ILog, Log>();
         }
         #endregion
     }

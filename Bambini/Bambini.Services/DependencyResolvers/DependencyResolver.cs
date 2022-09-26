@@ -82,7 +82,7 @@
             {
                 var parameterType = parameter.ParameterType;
 
-                MethodInfo method = GetType().GetMethod(nameof(Get))
+                MethodInfo method = this.GetType().GetMethod(nameof(Get), BindingFlags.NonPublic | BindingFlags.Instance)
                              .MakeGenericMethod(new Type[] { parameterType });
 
                 var resolvedParameter = method.Invoke(this, Array.Empty<object>());

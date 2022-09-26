@@ -21,6 +21,14 @@
         #endregion
 
         #region Public methods
+        public void EnsureFile(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.Create($"{path}");
+            }
+        }
+
         /// <summary>
         /// Executes a command on the machine
         /// </summary>
