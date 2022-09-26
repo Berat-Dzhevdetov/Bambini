@@ -157,7 +157,7 @@
 
                 var command = commands.FirstOrDefault(x => x.Phrase == token);
 
-                command.Execute();
+                new Task(command.Execute).Start();
             }
         }
 
