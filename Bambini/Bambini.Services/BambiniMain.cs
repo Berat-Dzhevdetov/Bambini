@@ -21,17 +21,7 @@
         #endregion
 
         #region Properties
-        public DependencyResolver DependencyResolver
-        {
-            get
-            {
-                return dependencyResolver;
-            }
-            init
-            {
-                dependencyResolver = value;
-            }
-        }
+        public DependencyResolver DependencyResolver { get; }
         #endregion
 
         #region Constructors
@@ -94,46 +84,67 @@
 
             if (commandTypes == null) return;
 
+            var commandsThatFailedToLoad = new List<string>();
+
             foreach (var command in commandTypes)
             {
-                ICommand? commandToAdd;
-
-                if (command == null) continue;
-
-                var constructors = command.GetConstructors();
-
-                if (constructors.Length != 1) throw new InvalidDataException($"Found more or less constructors in '{command.FullName}' command");
-
-                var constructor = constructors.FirstOrDefault();
-
-                var parameters = constructor.GetParameters();
-
-                if (parameters.Length >= 1)
+                try
                 {
-                    var resolvedParameters = new List<object>();
+                    ICommand commandToAdd;
 
-                    foreach (var parameter in parameters)
+                    if (command == null) continue;
+
+                    var constructors = command.GetConstructors();
+
+                    if (constructors.Length != 1) throw new InvalidDataException($"Found more or less constructors in '{command.FullName}' command");
+
+                    var constructor = constructors.FirstOrDefault();
+
+                    var parameters = constructor.GetParameters();
+
+                    if (parameters.Length >= 1)
                     {
-                        var parameterType = parameter.ParameterType;
+                        var resolvedParameters = new List<object>();
 
-                        MethodInfo method = DependencyResolver.GetType().GetMethod(nameof(DependencyResolver.Get), BindingFlags.NonPublic | BindingFlags.Instance)
-                                     .MakeGenericMethod(new Type[] { parameterType });
+                        foreach (var parameter in parameters)
+                        {
+                            var parameterType = parameter.ParameterType;
 
-                        var resolvedParameter = method.Invoke(DependencyResolver, Array.Empty<object>());
-                        resolvedParameters.Add(resolvedParameter);
+                            MethodInfo method = DependencyResolver.GetType().GetMethod(nameof(DependencyResolver.Get), BindingFlags.NonPublic | BindingFlags.Instance)
+                                         .MakeGenericMethod(new Type[] { parameterType });
+
+                            var resolvedParameter = method.Invoke(DependencyResolver, Array.Empty<object>());
+                            resolvedParameters.Add(resolvedParameter);
+                        }
+
+                        commandToAdd = (ICommand)constructor.Invoke(resolvedParameters.ToArray());
+                    }
+                    else
+                    {
+                        commandToAdd = (ICommand)Activator.CreateInstance(command);
                     }
 
-                    commandToAdd = (ICommand)constructor.Invoke(resolvedParameters.ToArray());
+                    if (commandToAdd == null) continue;
+
+                    commands.Add(commandToAdd);
+
+                    Console.Clear();
+                    Console.WriteLine($"Loaded {commands.Count}/{commandTypes.Length} command(s)");
                 }
-                else
+                catch (Exception ex)
                 {
-                    commandToAdd = (ICommand)Activator.CreateInstance(command);
+                    commandsThatFailedToLoad.Add($"{command.Name} given message: {ex.Message}");
                 }
-
-                if (commandToAdd == null) continue;
-
-                commands.Add(commandToAdd);
+                finally
+                {
+                    if (commandsThatFailedToLoad.Any())
+                    {
+                        Console.WriteLine($"Couldn't load:\n{string.Join("\n", commandsThatFailedToLoad)}");
+                        Console.WriteLine("Check error logs for more informaiton");
+                    }
+                }
             }
+            commandsThatFailedToLoad = null;
         }
 
         private Choices GetChoices()
@@ -148,7 +159,7 @@
             return myChoices;
         }
 
-        private void recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        private async void recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
             Console.WriteLine($"Recognized: {e.Result.Text}");
             if (e.Result.Text.StartsWith(FULL_PHRASE))
@@ -157,7 +168,16 @@
 
                 var command = commands.FirstOrDefault(x => x.Phrase == token);
 
-                new Task(command.Execute).Start();
+                try
+                {
+                    var commandTask = Task.Factory.StartNew(command.Execute);
+
+                    await commandTask;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{command} failed to run: {ex.Message}");
+                }
             }
         }
 

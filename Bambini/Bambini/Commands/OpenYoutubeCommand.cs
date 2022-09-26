@@ -2,7 +2,6 @@
 {
     using Bambini.Services.Interfaces;
     using Bambini.Services.WindowsHelpers;
-    using System.Diagnostics;
 
     public class OpenYoutubeCommand : ICommand
     {
@@ -16,7 +15,7 @@
 
         public void Execute()
         {
-            Process.Start(windowsHelper.DefaultBrowser, "https://www.youtube.com/");
+            windowsHelper.ExecuteCommand(windowsHelper.DefaultBrowser, "https://www.youtube.com/");
         }
     }
 }

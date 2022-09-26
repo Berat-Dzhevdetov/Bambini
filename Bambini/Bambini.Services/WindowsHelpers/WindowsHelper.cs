@@ -38,7 +38,8 @@
                 WindowStyle = ProcessWindowStyle.Hidden,
                 UseShellExecute = false,
                 RedirectStandardError = true,
-                RedirectStandardOutput = true
+                RedirectStandardOutput = true,
+                ErrorDialog = true
             };
 
             if (string.IsNullOrEmpty(filename))
@@ -58,7 +59,7 @@
             try
             {
                 process.Start();
-                process.BeginOutputReadLine();
+                // We need to wait the process to exit to get the exit code
                 process.WaitForExit();
             }
             catch (Exception e)

@@ -70,7 +70,7 @@
             var openRd = windowsHelper.ExecuteCommand("cmd.exe", rdArguments);
             if (openRd)
             {
-                message = "Successfully opened work desk";
+                message = "Successfully opened remote desktop";
             }
             else
             {
