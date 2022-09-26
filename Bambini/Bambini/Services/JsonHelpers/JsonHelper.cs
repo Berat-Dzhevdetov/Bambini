@@ -5,7 +5,7 @@
     using System;
     using System.Text;
 
-    internal static class JsonHelper// : IJsonHelper
+    internal static class JsonHelper
     {
         public static string GetField(string json, string field)
         {
