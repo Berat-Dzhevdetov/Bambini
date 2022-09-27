@@ -1,27 +1,18 @@
 ﻿namespace Bambini.Services.LoggerService
 {
-    using Bambini.Services.WindowsHelpers;
     using System;
     using System.Globalization;
     using System.Text;
 
-    internal class Log : ILog
+    public static class Log
     {
         #region Fields
-        private readonly string logFileName = "Errors.txt";
-        private readonly int defaultCountRepeating = 40;
-        private readonly IWindowsHelper windowsHelper;
-        #endregion
-
-        #region Constructors
-        public Log(IWindowsHelper windowsHelper)
-        {
-            this.windowsHelper = windowsHelper;
-        }
+        private static readonly string logFileName = "Errors.txt";
+        private static readonly int defaultCountRepeating = 40;
         #endregion
 
         #region Public methods
-        public void Write(Exception exception)
+        public static void Write(Exception exception)
         {
             var sb = new StringBuilder();
             var currentCulture = CultureInfo.CurrentCulture;

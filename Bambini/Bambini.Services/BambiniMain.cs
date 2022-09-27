@@ -19,7 +19,6 @@
         private readonly string FULL_PHRASE;
         private SpeechRecognitionEngine recognizer;
         private readonly List<ICommand> commands;
-        private readonly ILog log;
         #endregion
 
         #region Properties
@@ -32,8 +31,6 @@
             FULL_PHRASE = $"{CALL_WORD.ToLower()} {APP_NAME.ToLower()}";
             commands = new List<ICommand>();
             DependencyResolver = new DependencyResolver();
-            LoadDependencies();
-            log = DependencyResolver.Get<ILog>();
         }
         #endregion
 
@@ -43,6 +40,7 @@
         /// </summary>
         public void Run()
         {
+            LoadDependencies();
             LoadCommands();
             LoadSpeechRecognition();
 
@@ -59,8 +57,8 @@
         #region Private methods
         private void LoadSpeechRecognition()
         {
-            // Create a SpeechRecognitionEngine object for the default recognizer in the en-US locale.
-            recognizer = new SpeechRecognitionEngine(new CultureInfo("en-US"));
+            // Create a SpeechRecognitionEngine object for the default recognizer for the machine's current culture.
+            recognizer = new SpeechRecognitionEngine(CultureInfo.CurrentCulture);
 
             var choices = GetChoices();
             var grammerBuilder = new GrammarBuilder(choices);
@@ -98,7 +96,10 @@
 
                     var constructors = command.GetConstructors();
 
-                    if (constructors.Length != 1) throw new InvalidDataException($"Found more or less constructors in '{command.FullName}' command");
+                    if (constructors.Length != 1)
+                    {
+                        throw new InvalidDataException($"Found more than one constructor. Not sure which one to take in '{command.GetType().FullName}'");
+                    }
 
                     var constructor = constructors.FirstOrDefault();
 
@@ -128,6 +129,11 @@
 
                     if (commandToAdd == null) continue;
 
+                    if (commands.Any(x => x.Phrase.ToLower() == commandToAdd.Phrase.ToLower()))
+                    {
+                        throw new InvalidDataException($"Found two commands with same phrase: '{commandToAdd.Phrase}'");
+                    }
+
                     commands.Add(commandToAdd);
 
                     Console.Clear();
@@ -136,6 +142,7 @@
                 catch (Exception ex)
                 {
                     commandsThatFailedToLoad.Add($"{command.Name} given message: {ex.Message}");
+                    Log.Write(ex);
                 }
                 finally
                 {
@@ -181,7 +188,7 @@
                     Console.WriteLine($"{command} failed to run: {ex.Message}");
                     Console.WriteLine("Check the logs for more information");
                     ex.SetCommand(command);
-                    log.Write(ex);
+                    Log.Write(ex);
                 }
             }
         }
@@ -190,7 +197,6 @@
         {
             DependencyResolver.Add<IWindowsHelper, WindowsHelper>();
             DependencyResolver.Add<ISpeech, Speech>();
-            DependencyResolver.Add<ILog, Log>();
         }
         #endregion
     }
