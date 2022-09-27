@@ -18,5 +18,33 @@ bambini.DependencyResolver.Add<IMyCustomService, MyCustomService>();
 
 bambini.Run();
 ```
-Make sure to add the dependencies before calling ``` .Run() ``` method.
+#### Make sure to add the dependencies before calling ``` Run ``` method.
+-----
+#### Creating your own command
+```cs
+namespace Bambini.Commands
+{
+    using Bambini.Services.Interfaces;
+    using Bambini.Services.WindowsHelpers;
+
+    public class OpenGitHubCommand : ICommand
+    {
+        public string Phrase => "open github";
+        private readonly IWindowsHelper windowsHelper;
+
+        public OpenGitHubCommand(IWindowsHelper windowsHelper)
+        {
+            this.windowsHelper = windowsHelper;
+        }
+
+        public void Execute()
+        {
+            windowsHelper.ExecuteCommand(windowsHelper.DefaultBrowser, "https://github.com/Berat-Dzhevdetov");
+        }
+    }
+}
+```
+#### Create a public class that inherits ```ICommand``` interface.
+#### ```Phrase``` is used to recognize a command when the voice assistant is working. So in this case to execute the code simply just say "Hey bambini open github"
+#### When the program recognizes the phrase it will call the ```Execute``` method which in this case opens the default system browser with link "https://github.com/Berat-Dzhevdetov".
 -----
