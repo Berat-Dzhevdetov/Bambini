@@ -19,6 +19,7 @@
         public void Add<TClass>()
             where TClass : class
         {
+            if(regs.ContainsKey(typeof(TClass))) return;
             regs.Add(typeof(TClass), typeof(TClass));
         }
 
@@ -30,8 +31,9 @@
         /// <typeparam name="TInterface">Interface</typeparam>
         /// <typeparam name="TClass">The class</typeparam>
         public void Add<TInterface, TClass>()
-            where TClass : TInterface
+            where TClass : class, TInterface
         {
+            if(regs.ContainsKey(typeof(TInterface))) return;
             regs.Add(typeof(TInterface), typeof(TClass));
         }
 
