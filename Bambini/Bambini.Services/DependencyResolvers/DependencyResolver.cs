@@ -19,7 +19,7 @@
         public void Add<TClass>()
             where TClass : class
         {
-            if(regs.ContainsKey(typeof(TClass))) return;
+            if (regs.ContainsKey(typeof(TClass))) return;
             regs.Add(typeof(TClass), typeof(TClass));
         }
 
@@ -33,7 +33,7 @@
         public void Add<TInterface, TClass>()
             where TClass : class, TInterface
         {
-            if(regs.ContainsKey(typeof(TInterface))) return;
+            if (regs.ContainsKey(typeof(TInterface))) return;
             regs.Add(typeof(TInterface), typeof(TClass));
         }
 
@@ -47,6 +47,7 @@
             {
                 throw new InvalidDataException($"Couldn't find a class to resolve '{typeof(T).FullName}'");
             }
+
             var instanceOfTheClass = CreateInstance<T>();
             resolved[typeof(T)] = instanceOfTheClass;
             return instanceOfTheClass;
@@ -59,7 +60,7 @@
 
             if (classType.IsAbstract)
             {
-                throw new ArgumentException("Excepted interface but got class");
+                throw new ArgumentException("Excepted class to be instantiable but got abstract");
             }
 
             var constuctors = classType.GetConstructors();
@@ -73,7 +74,7 @@
 
             if (constuctor == null)
             {
-                throw new ArgumentNullException($"excepted at least one constuctor for '{classTypeName}' type");
+                throw new ArgumentNullException($"Excepted at least one constuctor for '{classTypeName}' type");
             }
 
             var parameters = constuctor.GetParameters();
@@ -83,6 +84,22 @@
             foreach (var parameter in parameters)
             {
                 var parameterType = parameter.ParameterType;
+
+                if (regs.ContainsKey(parameterType))
+                {
+                    var currentParameterClass = regs[parameterType];
+
+                    var constructor = currentParameterClass.GetConstructors().FirstOrDefault();
+                    
+                    if(constructor != null)
+                    {
+                        var isThereACircularDependency = constructor.GetParameters().Any(x => x.ParameterType == typeof(T));
+                        if (isThereACircularDependency)
+                        {
+                            throw new StackOverflowException($"Circular dependency caught between: {currentParameterClass.FullName} and {classType.FullName}");
+                        }
+                    }
+                }
 
                 MethodInfo method = this.GetType().GetMethod(nameof(Get), BindingFlags.NonPublic | BindingFlags.Instance)
                              .MakeGenericMethod(new Type[] { parameterType });

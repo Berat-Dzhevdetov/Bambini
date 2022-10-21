@@ -98,7 +98,7 @@
 
                     if (constructors.Length != 1)
                     {
-                        throw new InvalidDataException($"Found more than one constructor. Not sure which one to take in '{command.GetType().FullName}'");
+                        throw new InvalidDataException($"Found more than one constructor in '{command.GetType().FullName}'. Not sure which one to take.");
                     }
 
                     var constructor = constructors.FirstOrDefault();
@@ -138,6 +138,12 @@
 
                     Console.Clear();
                     Console.WriteLine($"Loaded {commands.Count}/{commandTypes.Length} command(s)");
+                }
+                catch (TargetInvocationException ex)
+                {
+                    Console.WriteLine(ex.InnerException.Message);
+                    Log.Write(ex.InnerException);
+                    Environment.Exit(1);
                 }
                 catch (Exception ex)
                 {
